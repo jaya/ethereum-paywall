@@ -11,7 +11,7 @@ coin_artifact = artifacts[source_file + ':' + 'Coin']
 
 json.dump(
     coin_artifact['abi'],
-    open('web/public/coin_interface.json', 'w'), indent=2)
+    open('web/public/contract_interface.json', 'w'), indent=2)
 
 web3 = Web3(HTTPProvider('http://localhost:8545'))
 
@@ -28,4 +28,4 @@ for key, value in tx_receipt.items(): print('\t', key, value)
 
 contract_address = tx_receipt['contractAddress']
 
-json.dump(contract_address, open('web/public/contract_interface.json', 'w'))
+json.dump(contract_address, open('web/public/contract_address.json', 'w'))
