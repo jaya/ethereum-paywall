@@ -4,11 +4,11 @@ import Html exposing (..)
 
 
 type alias Flag =
-    {}
+    { userAccount : Maybe String }
 
 
 type alias Model =
-    {}
+    { userAccount : Maybe String }
 
 
 type Msg
@@ -26,7 +26,7 @@ main =
 
 init : Flag -> ( Model, Cmd Msg )
 init flags =
-    ( initialModel, Cmd.none )
+    ( { userAccount = flags.userAccount }, Cmd.none )
 
 
 initialModel =
@@ -34,7 +34,19 @@ initialModel =
 
 
 view model =
-    div [] [ h1 [] [ text "Coin blog" ] ]
+    div []
+        [ h1 [] [ text "Coin blog" ]
+        , showUserAccount model
+        ]
+
+
+showUserAccount model =
+    case model.userAccount of
+        Just userAccount ->
+            div [] [ text userAccount ]
+
+        Nothing ->
+            div [] [ text "No account detected" ]
 
 
 update msg model =

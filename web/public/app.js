@@ -7802,6 +7802,28 @@ var _user$project$Main$update = F2(
 	function (msg, model) {
 		return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 	});
+var _user$project$Main$showUserAccount = function (model) {
+	var _p0 = model.userAccount;
+	if (_p0.ctor === 'Just') {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text(_p0._0),
+				_1: {ctor: '[]'}
+			});
+	} else {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text('No account detected'),
+				_1: {ctor: '[]'}
+			});
+	}
+};
 var _user$project$Main$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -7816,19 +7838,48 @@ var _user$project$Main$view = function (model) {
 					_0: _elm_lang$html$Html$text('Coin blog'),
 					_1: {ctor: '[]'}
 				}),
-			_1: {ctor: '[]'}
+			_1: {
+				ctor: '::',
+				_0: _user$project$Main$showUserAccount(model),
+				_1: {ctor: '[]'}
+			}
 		});
 };
 var _user$project$Main$initialModel = {};
 var _user$project$Main$init = function (flags) {
-	return {ctor: '_Tuple2', _0: _user$project$Main$initialModel, _1: _elm_lang$core$Platform_Cmd$none};
+	return {
+		ctor: '_Tuple2',
+		_0: {userAccount: flags.userAccount},
+		_1: _elm_lang$core$Platform_Cmd$none
+	};
 };
 var _user$project$Main$main = _elm_lang$html$Html$programWithFlags(
 	{view: _user$project$Main$view, update: _user$project$Main$update, subscriptions: _user$project$Main$subscriptions, init: _user$project$Main$init})(
-	_elm_lang$core$Json_Decode$succeed(
-		{}));
-var _user$project$Main$Flag = {};
-var _user$project$Main$Model = {};
+	A2(
+		_elm_lang$core$Json_Decode$andThen,
+		function (userAccount) {
+			return _elm_lang$core$Json_Decode$succeed(
+				{userAccount: userAccount});
+		},
+		A2(
+			_elm_lang$core$Json_Decode$field,
+			'userAccount',
+			_elm_lang$core$Json_Decode$oneOf(
+				{
+					ctor: '::',
+					_0: _elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
+					_1: {
+						ctor: '::',
+						_0: A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$string),
+						_1: {ctor: '[]'}
+					}
+				}))));
+var _user$project$Main$Flag = function (a) {
+	return {userAccount: a};
+};
+var _user$project$Main$Model = function (a) {
+	return {userAccount: a};
+};
 var _user$project$Main$NoOp = {ctor: 'NoOp'};
 
 var Elm = {};
