@@ -40,6 +40,18 @@ $.getJSON('contract_interface.json', function (contractInterface) {
 		});
 	});
 
+	app.ports.purchaseCoins.subscribe(function (args) {
+		var coin = Coin.at(args.contractAddress);
+		coin.deposit({
+			from: args.userAccount,
+			value: web3.toWei(1, 'ether'),
+			gas: 1000000,
+			gasPrice: web3.toWei(50, 'gwei')
+		}, function (err, res) {
+			//
+		});
+	})
+
 });
 });
 

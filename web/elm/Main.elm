@@ -1,7 +1,9 @@
 module Main exposing (..)
 
 import Html exposing (..)
+import Html.Events exposing (..)
 import Coin exposing (..)
+import PurchaseInfo exposing (PurchaseInfo)
 
 
 type alias Flag =
@@ -18,6 +20,7 @@ type alias Model =
 type Msg
     = NoOp
     | SetUserBalance Float
+    | PurchaseCoins PurchaseInfo
 
 
 main =
@@ -62,7 +65,27 @@ view model =
         [ h1 [] [ text "Coin blog" ]
         , showUserAccount model
         , showContractAddress model
+        , showPurchaseWidget model
         ]
+
+
+showPurchaseWidget model =
+    case ( model.userAccount, model.contractAddress ) of
+        ( Just userAccount, Just contractAddress ) ->
+            div []
+                [ button
+                    [ onClick
+                        (PurchaseCoins
+                            { contractAddress = contractAddress
+                            , userAccount = userAccount
+                            }
+                        )
+                    ]
+                    [ text "Purchase coins!" ]
+                ]
+
+        _ ->
+            div [] []
 
 
 showUserAccount model =
@@ -100,6 +123,9 @@ update msg model =
 
         NoOp ->
             ( model, Cmd.none )
+
+        PurchaseCoins account ->
+            ( model, purchaseCoins account )
 
 
 subscriptions model =
