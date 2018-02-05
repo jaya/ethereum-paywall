@@ -34,7 +34,7 @@ initialModel =
 
 
 view model =
-    div [] []
+    div [] [ h1 [] [ text "Coin blog" ] ]
 
 
 update msg model =
