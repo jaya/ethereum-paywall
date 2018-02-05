@@ -7795,22 +7795,39 @@ var _elm_lang$html$Html$summary = _elm_lang$html$Html$node('summary');
 var _elm_lang$html$Html$menuitem = _elm_lang$html$Html$node('menuitem');
 var _elm_lang$html$Html$menu = _elm_lang$html$Html$node('menu');
 
-var _user$project$Main$subscriptions = function (model) {
-	return _elm_lang$core$Platform_Sub$none;
-};
+var _user$project$Coin$getUserBalance = _elm_lang$core$Native_Platform.outgoingPort(
+	'getUserBalance',
+	function (v) {
+		return v;
+	});
+var _user$project$Coin$setUserBalance = _elm_lang$core$Native_Platform.incomingPort('setUserBalance', _elm_lang$core$Json_Decode$float);
+
 var _user$project$Main$update = F2(
 	function (msg, model) {
-		return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+		var _p0 = msg;
+		if (_p0.ctor === 'SetUserBalance') {
+			return {
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						userBalance: _elm_lang$core$Maybe$Just(_p0._0)
+					}),
+				_1: _elm_lang$core$Platform_Cmd$none
+			};
+		} else {
+			return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+		}
 	});
 var _user$project$Main$showContractAddress = function (model) {
-	var _p0 = model.contractAddress;
-	if (_p0.ctor === 'Just') {
+	var _p1 = model.contractAddress;
+	if (_p1.ctor === 'Just') {
 		return A2(
 			_elm_lang$html$Html$div,
 			{ctor: '[]'},
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html$text(_p0._0),
+				_0: _elm_lang$html$Html$text(_p1._0),
 				_1: {ctor: '[]'}
 			});
 	} else {
@@ -7825,16 +7842,40 @@ var _user$project$Main$showContractAddress = function (model) {
 	}
 };
 var _user$project$Main$showUserAccount = function (model) {
-	var _p1 = model.userAccount;
-	if (_p1.ctor === 'Just') {
-		return A2(
-			_elm_lang$html$Html$div,
-			{ctor: '[]'},
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html$text(_p1._0),
-				_1: {ctor: '[]'}
-			});
+	var _p2 = {ctor: '_Tuple2', _0: model.userAccount, _1: model.userBalance};
+	if ((_p2.ctor === '_Tuple2') && (_p2._0.ctor === 'Just')) {
+		if (_p2._1.ctor === 'Just') {
+			return A2(
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(_p2._0._0),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(' and your balance is '),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(
+								_elm_lang$core$Basics$toString(_p2._1._0)),
+							_1: {ctor: '[]'}
+						}
+					}
+				});
+		} else {
+			return A2(
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(_p2._0._0),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(' and we are still fetching your balance'),
+						_1: {ctor: '[]'}
+					}
+				});
+		}
 	} else {
 		return A2(
 			_elm_lang$html$Html$div,
@@ -7871,13 +7912,45 @@ var _user$project$Main$view = function (model) {
 			}
 		});
 };
-var _user$project$Main$initialModel = {};
+var _user$project$Main$initialModel = function (flags) {
+	return {userAccount: flags.userAccount, contractAddress: flags.contractAddress, userBalance: _elm_lang$core$Maybe$Nothing};
+};
+var _user$project$Main$initialCommands = function (model) {
+	var _p3 = model.userAccount;
+	if (_p3.ctor === 'Just') {
+		return _elm_lang$core$Platform_Cmd$batch(
+			{
+				ctor: '::',
+				_0: _user$project$Coin$getUserBalance(_p3._0),
+				_1: {ctor: '[]'}
+			});
+	} else {
+		return _elm_lang$core$Platform_Cmd$none;
+	}
+};
 var _user$project$Main$init = function (flags) {
-	return {
-		ctor: '_Tuple2',
-		_0: {userAccount: flags.userAccount, contractAddress: flags.contractAddress},
-		_1: _elm_lang$core$Platform_Cmd$none
-	};
+	var m = _user$project$Main$initialModel(flags);
+	var c = _user$project$Main$initialCommands(m);
+	return {ctor: '_Tuple2', _0: m, _1: c};
+};
+var _user$project$Main$Flag = F2(
+	function (a, b) {
+		return {userAccount: a, contractAddress: b};
+	});
+var _user$project$Main$Model = F3(
+	function (a, b, c) {
+		return {userAccount: a, contractAddress: b, userBalance: c};
+	});
+var _user$project$Main$SetUserBalance = function (a) {
+	return {ctor: 'SetUserBalance', _0: a};
+};
+var _user$project$Main$subscriptions = function (model) {
+	return _elm_lang$core$Platform_Sub$batch(
+		{
+			ctor: '::',
+			_0: _user$project$Coin$setUserBalance(_user$project$Main$SetUserBalance),
+			_1: {ctor: '[]'}
+		});
 };
 var _user$project$Main$main = _elm_lang$html$Html$programWithFlags(
 	{view: _user$project$Main$view, update: _user$project$Main$update, subscriptions: _user$project$Main$subscriptions, init: _user$project$Main$init})(
@@ -7917,17 +7990,13 @@ var _user$project$Main$main = _elm_lang$html$Html$programWithFlags(
 						_1: {ctor: '[]'}
 					}
 				}))));
-var _user$project$Main$Flag = F2(
-	function (a, b) {
-		return {userAccount: a, contractAddress: b};
-	});
-var _user$project$Main$Model = F2(
-	function (a, b) {
-		return {userAccount: a, contractAddress: b};
-	});
 var _user$project$Main$NoOp = {ctor: 'NoOp'};
 
 var Elm = {};
+Elm['Coin'] = Elm['Coin'] || {};
+if (typeof _user$project$Coin$main !== 'undefined') {
+    _user$project$Coin$main(Elm['Coin'], 'Coin', undefined);
+}
 Elm['Main'] = Elm['Main'] || {};
 if (typeof _user$project$Main$main !== 'undefined') {
     _user$project$Main$main(Elm['Main'], 'Main', undefined);

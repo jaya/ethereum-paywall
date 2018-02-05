@@ -31,6 +31,15 @@ $.getJSON('contract_interface.json', function (contractInterface) {
 		}
 	);
 
+	app.ports.getUserBalance.subscribe(function (userAccount) {
+		web3.eth.getBalance(userAccount, function(err, res) {
+			var amt = parseFloat(
+					web3.fromWei(res, 'ether')
+				);
+			app.ports.setUserBalance.send(amt);
+		});
+	});
+
 });
 });
 

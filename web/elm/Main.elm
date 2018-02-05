@@ -1,6 +1,7 @@
 module Main exposing (..)
 
 import Html exposing (..)
+import Coin exposing (..)
 
 
 type alias Flag =
@@ -8,11 +9,15 @@ type alias Flag =
 
 
 type alias Model =
-    { userAccount : Maybe String, contractAddress : Maybe String }
+    { userAccount : Maybe String
+    , contractAddress : Maybe String
+    , userBalance : Maybe Float
+    }
 
 
 type Msg
     = NoOp
+    | SetUserBalance Float
 
 
 main =
@@ -26,15 +31,30 @@ main =
 
 init : Flag -> ( Model, Cmd Msg )
 init flags =
-    ( { userAccount = flags.userAccount
-      , contractAddress = flags.contractAddress
-      }
-    , Cmd.none
-    )
+    let
+        m =
+            initialModel flags
+
+        c =
+            initialCommands m
+    in
+        ( m, c )
 
 
-initialModel =
-    {}
+initialCommands model =
+    case model.userAccount of
+        Just userAccount ->
+            Cmd.batch [ getUserBalance userAccount ]
+
+        Nothing ->
+            Cmd.none
+
+
+initialModel flags =
+    { userAccount = flags.userAccount
+    , contractAddress = flags.contractAddress
+    , userBalance = Nothing
+    }
 
 
 view model =
@@ -46,11 +66,21 @@ view model =
 
 
 showUserAccount model =
-    case model.userAccount of
-        Just userAccount ->
-            div [] [ text userAccount ]
+    case ( model.userAccount, model.userBalance ) of
+        ( Just userAccount, Just userBalance ) ->
+            div []
+                [ text userAccount
+                , text " and your balance is "
+                , text (toString userBalance)
+                ]
 
-        Nothing ->
+        ( Just userAccount, Nothing ) ->
+            div []
+                [ text userAccount
+                , text " and we are still fetching your balance"
+                ]
+
+        _ ->
             div [] [ text "No account detected" ]
 
 
@@ -64,8 +94,15 @@ showContractAddress model =
 
 
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        SetUserBalance balance ->
+            ( { model | userBalance = Just balance }, Cmd.none )
+
+        NoOp ->
+            ( model, Cmd.none )
 
 
 subscriptions model =
-    Sub.none
+    Sub.batch
+        [ setUserBalance SetUserBalance
+        ]
