@@ -3746,6 +3746,203 @@ var _elm_lang$core$Result$fromMaybe = F2(
 		}
 	});
 
+var _elm_lang$core$Task$onError = _elm_lang$core$Native_Scheduler.onError;
+var _elm_lang$core$Task$andThen = _elm_lang$core$Native_Scheduler.andThen;
+var _elm_lang$core$Task$spawnCmd = F2(
+	function (router, _p0) {
+		var _p1 = _p0;
+		return _elm_lang$core$Native_Scheduler.spawn(
+			A2(
+				_elm_lang$core$Task$andThen,
+				_elm_lang$core$Platform$sendToApp(router),
+				_p1._0));
+	});
+var _elm_lang$core$Task$fail = _elm_lang$core$Native_Scheduler.fail;
+var _elm_lang$core$Task$mapError = F2(
+	function (convert, task) {
+		return A2(
+			_elm_lang$core$Task$onError,
+			function (_p2) {
+				return _elm_lang$core$Task$fail(
+					convert(_p2));
+			},
+			task);
+	});
+var _elm_lang$core$Task$succeed = _elm_lang$core$Native_Scheduler.succeed;
+var _elm_lang$core$Task$map = F2(
+	function (func, taskA) {
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (a) {
+				return _elm_lang$core$Task$succeed(
+					func(a));
+			},
+			taskA);
+	});
+var _elm_lang$core$Task$map2 = F3(
+	function (func, taskA, taskB) {
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (a) {
+				return A2(
+					_elm_lang$core$Task$andThen,
+					function (b) {
+						return _elm_lang$core$Task$succeed(
+							A2(func, a, b));
+					},
+					taskB);
+			},
+			taskA);
+	});
+var _elm_lang$core$Task$map3 = F4(
+	function (func, taskA, taskB, taskC) {
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (a) {
+				return A2(
+					_elm_lang$core$Task$andThen,
+					function (b) {
+						return A2(
+							_elm_lang$core$Task$andThen,
+							function (c) {
+								return _elm_lang$core$Task$succeed(
+									A3(func, a, b, c));
+							},
+							taskC);
+					},
+					taskB);
+			},
+			taskA);
+	});
+var _elm_lang$core$Task$map4 = F5(
+	function (func, taskA, taskB, taskC, taskD) {
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (a) {
+				return A2(
+					_elm_lang$core$Task$andThen,
+					function (b) {
+						return A2(
+							_elm_lang$core$Task$andThen,
+							function (c) {
+								return A2(
+									_elm_lang$core$Task$andThen,
+									function (d) {
+										return _elm_lang$core$Task$succeed(
+											A4(func, a, b, c, d));
+									},
+									taskD);
+							},
+							taskC);
+					},
+					taskB);
+			},
+			taskA);
+	});
+var _elm_lang$core$Task$map5 = F6(
+	function (func, taskA, taskB, taskC, taskD, taskE) {
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (a) {
+				return A2(
+					_elm_lang$core$Task$andThen,
+					function (b) {
+						return A2(
+							_elm_lang$core$Task$andThen,
+							function (c) {
+								return A2(
+									_elm_lang$core$Task$andThen,
+									function (d) {
+										return A2(
+											_elm_lang$core$Task$andThen,
+											function (e) {
+												return _elm_lang$core$Task$succeed(
+													A5(func, a, b, c, d, e));
+											},
+											taskE);
+									},
+									taskD);
+							},
+							taskC);
+					},
+					taskB);
+			},
+			taskA);
+	});
+var _elm_lang$core$Task$sequence = function (tasks) {
+	var _p3 = tasks;
+	if (_p3.ctor === '[]') {
+		return _elm_lang$core$Task$succeed(
+			{ctor: '[]'});
+	} else {
+		return A3(
+			_elm_lang$core$Task$map2,
+			F2(
+				function (x, y) {
+					return {ctor: '::', _0: x, _1: y};
+				}),
+			_p3._0,
+			_elm_lang$core$Task$sequence(_p3._1));
+	}
+};
+var _elm_lang$core$Task$onEffects = F3(
+	function (router, commands, state) {
+		return A2(
+			_elm_lang$core$Task$map,
+			function (_p4) {
+				return {ctor: '_Tuple0'};
+			},
+			_elm_lang$core$Task$sequence(
+				A2(
+					_elm_lang$core$List$map,
+					_elm_lang$core$Task$spawnCmd(router),
+					commands)));
+	});
+var _elm_lang$core$Task$init = _elm_lang$core$Task$succeed(
+	{ctor: '_Tuple0'});
+var _elm_lang$core$Task$onSelfMsg = F3(
+	function (_p7, _p6, _p5) {
+		return _elm_lang$core$Task$succeed(
+			{ctor: '_Tuple0'});
+	});
+var _elm_lang$core$Task$command = _elm_lang$core$Native_Platform.leaf('Task');
+var _elm_lang$core$Task$Perform = function (a) {
+	return {ctor: 'Perform', _0: a};
+};
+var _elm_lang$core$Task$perform = F2(
+	function (toMessage, task) {
+		return _elm_lang$core$Task$command(
+			_elm_lang$core$Task$Perform(
+				A2(_elm_lang$core$Task$map, toMessage, task)));
+	});
+var _elm_lang$core$Task$attempt = F2(
+	function (resultToMessage, task) {
+		return _elm_lang$core$Task$command(
+			_elm_lang$core$Task$Perform(
+				A2(
+					_elm_lang$core$Task$onError,
+					function (_p8) {
+						return _elm_lang$core$Task$succeed(
+							resultToMessage(
+								_elm_lang$core$Result$Err(_p8)));
+					},
+					A2(
+						_elm_lang$core$Task$andThen,
+						function (_p9) {
+							return _elm_lang$core$Task$succeed(
+								resultToMessage(
+									_elm_lang$core$Result$Ok(_p9)));
+						},
+						task))));
+	});
+var _elm_lang$core$Task$cmdMap = F2(
+	function (tagger, _p10) {
+		var _p11 = _p10;
+		return _elm_lang$core$Task$Perform(
+			A2(_elm_lang$core$Task$map, tagger, _p11._0));
+	});
+_elm_lang$core$Native_Platform.effectManagers['Task'] = {pkg: 'elm-lang/core', init: _elm_lang$core$Task$init, onEffects: _elm_lang$core$Task$onEffects, onSelfMsg: _elm_lang$core$Task$onSelfMsg, tag: 'cmd', cmdMap: _elm_lang$core$Task$cmdMap};
+
 //import Native.Utils //
 
 var _elm_lang$core$Native_Debug = function() {
@@ -5076,6 +5273,221 @@ var _elm_lang$core$Dict$diff = F2(
 			t1,
 			t2);
 	});
+
+//import Native.Scheduler //
+
+var _elm_lang$core$Native_Time = function() {
+
+var now = _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+{
+	callback(_elm_lang$core$Native_Scheduler.succeed(Date.now()));
+});
+
+function setInterval_(interval, task)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+	{
+		var id = setInterval(function() {
+			_elm_lang$core$Native_Scheduler.rawSpawn(task);
+		}, interval);
+
+		return function() { clearInterval(id); };
+	});
+}
+
+return {
+	now: now,
+	setInterval_: F2(setInterval_)
+};
+
+}();
+var _elm_lang$core$Time$setInterval = _elm_lang$core$Native_Time.setInterval_;
+var _elm_lang$core$Time$spawnHelp = F3(
+	function (router, intervals, processes) {
+		var _p0 = intervals;
+		if (_p0.ctor === '[]') {
+			return _elm_lang$core$Task$succeed(processes);
+		} else {
+			var _p1 = _p0._0;
+			var spawnRest = function (id) {
+				return A3(
+					_elm_lang$core$Time$spawnHelp,
+					router,
+					_p0._1,
+					A3(_elm_lang$core$Dict$insert, _p1, id, processes));
+			};
+			var spawnTimer = _elm_lang$core$Native_Scheduler.spawn(
+				A2(
+					_elm_lang$core$Time$setInterval,
+					_p1,
+					A2(_elm_lang$core$Platform$sendToSelf, router, _p1)));
+			return A2(_elm_lang$core$Task$andThen, spawnRest, spawnTimer);
+		}
+	});
+var _elm_lang$core$Time$addMySub = F2(
+	function (_p2, state) {
+		var _p3 = _p2;
+		var _p6 = _p3._1;
+		var _p5 = _p3._0;
+		var _p4 = A2(_elm_lang$core$Dict$get, _p5, state);
+		if (_p4.ctor === 'Nothing') {
+			return A3(
+				_elm_lang$core$Dict$insert,
+				_p5,
+				{
+					ctor: '::',
+					_0: _p6,
+					_1: {ctor: '[]'}
+				},
+				state);
+		} else {
+			return A3(
+				_elm_lang$core$Dict$insert,
+				_p5,
+				{ctor: '::', _0: _p6, _1: _p4._0},
+				state);
+		}
+	});
+var _elm_lang$core$Time$inMilliseconds = function (t) {
+	return t;
+};
+var _elm_lang$core$Time$millisecond = 1;
+var _elm_lang$core$Time$second = 1000 * _elm_lang$core$Time$millisecond;
+var _elm_lang$core$Time$minute = 60 * _elm_lang$core$Time$second;
+var _elm_lang$core$Time$hour = 60 * _elm_lang$core$Time$minute;
+var _elm_lang$core$Time$inHours = function (t) {
+	return t / _elm_lang$core$Time$hour;
+};
+var _elm_lang$core$Time$inMinutes = function (t) {
+	return t / _elm_lang$core$Time$minute;
+};
+var _elm_lang$core$Time$inSeconds = function (t) {
+	return t / _elm_lang$core$Time$second;
+};
+var _elm_lang$core$Time$now = _elm_lang$core$Native_Time.now;
+var _elm_lang$core$Time$onSelfMsg = F3(
+	function (router, interval, state) {
+		var _p7 = A2(_elm_lang$core$Dict$get, interval, state.taggers);
+		if (_p7.ctor === 'Nothing') {
+			return _elm_lang$core$Task$succeed(state);
+		} else {
+			var tellTaggers = function (time) {
+				return _elm_lang$core$Task$sequence(
+					A2(
+						_elm_lang$core$List$map,
+						function (tagger) {
+							return A2(
+								_elm_lang$core$Platform$sendToApp,
+								router,
+								tagger(time));
+						},
+						_p7._0));
+			};
+			return A2(
+				_elm_lang$core$Task$andThen,
+				function (_p8) {
+					return _elm_lang$core$Task$succeed(state);
+				},
+				A2(_elm_lang$core$Task$andThen, tellTaggers, _elm_lang$core$Time$now));
+		}
+	});
+var _elm_lang$core$Time$subscription = _elm_lang$core$Native_Platform.leaf('Time');
+var _elm_lang$core$Time$State = F2(
+	function (a, b) {
+		return {taggers: a, processes: b};
+	});
+var _elm_lang$core$Time$init = _elm_lang$core$Task$succeed(
+	A2(_elm_lang$core$Time$State, _elm_lang$core$Dict$empty, _elm_lang$core$Dict$empty));
+var _elm_lang$core$Time$onEffects = F3(
+	function (router, subs, _p9) {
+		var _p10 = _p9;
+		var rightStep = F3(
+			function (_p12, id, _p11) {
+				var _p13 = _p11;
+				return {
+					ctor: '_Tuple3',
+					_0: _p13._0,
+					_1: _p13._1,
+					_2: A2(
+						_elm_lang$core$Task$andThen,
+						function (_p14) {
+							return _p13._2;
+						},
+						_elm_lang$core$Native_Scheduler.kill(id))
+				};
+			});
+		var bothStep = F4(
+			function (interval, taggers, id, _p15) {
+				var _p16 = _p15;
+				return {
+					ctor: '_Tuple3',
+					_0: _p16._0,
+					_1: A3(_elm_lang$core$Dict$insert, interval, id, _p16._1),
+					_2: _p16._2
+				};
+			});
+		var leftStep = F3(
+			function (interval, taggers, _p17) {
+				var _p18 = _p17;
+				return {
+					ctor: '_Tuple3',
+					_0: {ctor: '::', _0: interval, _1: _p18._0},
+					_1: _p18._1,
+					_2: _p18._2
+				};
+			});
+		var newTaggers = A3(_elm_lang$core$List$foldl, _elm_lang$core$Time$addMySub, _elm_lang$core$Dict$empty, subs);
+		var _p19 = A6(
+			_elm_lang$core$Dict$merge,
+			leftStep,
+			bothStep,
+			rightStep,
+			newTaggers,
+			_p10.processes,
+			{
+				ctor: '_Tuple3',
+				_0: {ctor: '[]'},
+				_1: _elm_lang$core$Dict$empty,
+				_2: _elm_lang$core$Task$succeed(
+					{ctor: '_Tuple0'})
+			});
+		var spawnList = _p19._0;
+		var existingDict = _p19._1;
+		var killTask = _p19._2;
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (newProcesses) {
+				return _elm_lang$core$Task$succeed(
+					A2(_elm_lang$core$Time$State, newTaggers, newProcesses));
+			},
+			A2(
+				_elm_lang$core$Task$andThen,
+				function (_p20) {
+					return A3(_elm_lang$core$Time$spawnHelp, router, spawnList, existingDict);
+				},
+				killTask));
+	});
+var _elm_lang$core$Time$Every = F2(
+	function (a, b) {
+		return {ctor: 'Every', _0: a, _1: b};
+	});
+var _elm_lang$core$Time$every = F2(
+	function (interval, tagger) {
+		return _elm_lang$core$Time$subscription(
+			A2(_elm_lang$core$Time$Every, interval, tagger));
+	});
+var _elm_lang$core$Time$subMap = F2(
+	function (f, _p21) {
+		var _p22 = _p21;
+		return A2(
+			_elm_lang$core$Time$Every,
+			_p22._0,
+			function (_p23) {
+				return f(
+					_p22._1(_p23));
+			});
+	});
+_elm_lang$core$Native_Platform.effectManagers['Time'] = {pkg: 'elm-lang/core', init: _elm_lang$core$Time$init, onEffects: _elm_lang$core$Time$onEffects, onSelfMsg: _elm_lang$core$Time$onSelfMsg, tag: 'sub', subMap: _elm_lang$core$Time$subMap};
 
 var _elm_lang$core$Debug$crash = _elm_lang$core$Native_Debug.crash;
 var _elm_lang$core$Debug$log = _elm_lang$core$Native_Debug.log;
@@ -7915,6 +8327,11 @@ var _user$project$PurchaseInfo$PurchaseInfo = F2(
 		return {contractAddress: a, userAccount: b};
 	});
 
+var _user$project$UserCoinInfo$UserCoinInfo = F2(
+	function (a, b) {
+		return {contractAddress: a, userAccount: b};
+	});
+
 var _user$project$Coin$getUserBalance = _elm_lang$core$Native_Platform.outgoingPort(
 	'getUserBalance',
 	function (v) {
@@ -7929,43 +8346,84 @@ var _user$project$Coin$purchaseCoins = _elm_lang$core$Native_Platform.outgoingPo
 var _user$project$Coin$getUserCoins = _elm_lang$core$Native_Platform.outgoingPort(
 	'getUserCoins',
 	function (v) {
-		return v;
+		return {contractAddress: v.contractAddress, userAccount: v.userAccount};
 	});
-var _user$project$Coin$setUserCoins = _elm_lang$core$Native_Platform.incomingPort('setUserCoins', _elm_lang$core$Json_Decode$float);
+var _user$project$Coin$setUserCoins = _elm_lang$core$Native_Platform.incomingPort(
+	'setUserCoins',
+	_elm_lang$core$Json_Decode$oneOf(
+		{
+			ctor: '::',
+			_0: _elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
+			_1: {
+				ctor: '::',
+				_0: A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$float),
+				_1: {ctor: '[]'}
+			}
+		}));
+var _user$project$Coin$triggerUpdate = _elm_lang$core$Native_Platform.incomingPort(
+	'triggerUpdate',
+	_elm_lang$core$Json_Decode$null(
+		{ctor: '_Tuple0'}));
 
-var _user$project$Main$update = F2(
-	function (msg, model) {
-		var _p0 = msg;
-		switch (_p0.ctor) {
-			case 'SetUserBalance':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							userBalance: _elm_lang$core$Maybe$Just(_p0._0)
-						}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'NoOp':
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-			default:
-				return {
-					ctor: '_Tuple2',
-					_0: model,
-					_1: _user$project$Coin$purchaseCoins(_p0._0)
-				};
-		}
-	});
-var _user$project$Main$showContractAddress = function (model) {
-	var _p1 = model.contractAddress;
-	if (_p1.ctor === 'Just') {
+var _user$project$Main$updateCommands = function (model) {
+	var _p0 = {ctor: '_Tuple2', _0: model.contractAddress, _1: model.userAccount};
+	if (((_p0.ctor === '_Tuple2') && (_p0._0.ctor === 'Just')) && (_p0._1.ctor === 'Just')) {
+		var _p1 = _p0._1._0;
+		return _elm_lang$core$Platform_Cmd$batch(
+			{
+				ctor: '::',
+				_0: _user$project$Coin$getUserBalance(_p1),
+				_1: {
+					ctor: '::',
+					_0: _user$project$Coin$getUserCoins(
+						{userAccount: _p1, contractAddress: _p0._0._0}),
+					_1: {ctor: '[]'}
+				}
+			});
+	} else {
+		return _elm_lang$core$Platform_Cmd$none;
+	}
+};
+var _user$project$Main$showUserCoins = function (model) {
+	var _p2 = model.userCoins;
+	if (_p2.ctor === 'Just') {
 		return A2(
 			_elm_lang$html$Html$div,
 			{ctor: '[]'},
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html$text(_p1._0),
+				_0: _elm_lang$html$Html$text('You have '),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(
+						_elm_lang$core$Basics$toString(_p2._0)),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(' coins'),
+						_1: {ctor: '[]'}
+					}
+				}
+			});
+	} else {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text('We are fetching your amount of coins'),
+				_1: {ctor: '[]'}
+			});
+	}
+};
+var _user$project$Main$showContractAddress = function (model) {
+	var _p3 = model.contractAddress;
+	if (_p3.ctor === 'Just') {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text(_p3._0),
 				_1: {ctor: '[]'}
 			});
 	} else {
@@ -7980,22 +8438,22 @@ var _user$project$Main$showContractAddress = function (model) {
 	}
 };
 var _user$project$Main$showUserAccount = function (model) {
-	var _p2 = {ctor: '_Tuple2', _0: model.userAccount, _1: model.userBalance};
-	if ((_p2.ctor === '_Tuple2') && (_p2._0.ctor === 'Just')) {
-		if (_p2._1.ctor === 'Just') {
+	var _p4 = {ctor: '_Tuple2', _0: model.userAccount, _1: model.userBalance};
+	if ((_p4.ctor === '_Tuple2') && (_p4._0.ctor === 'Just')) {
+		if (_p4._1.ctor === 'Just') {
 			return A2(
 				_elm_lang$html$Html$div,
 				{ctor: '[]'},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text(_p2._0._0),
+					_0: _elm_lang$html$Html$text(_p4._0._0),
 					_1: {
 						ctor: '::',
 						_0: _elm_lang$html$Html$text(' and your balance is '),
 						_1: {
 							ctor: '::',
 							_0: _elm_lang$html$Html$text(
-								_elm_lang$core$Basics$toString(_p2._1._0)),
+								_elm_lang$core$Basics$toString(_p4._1._0)),
 							_1: {ctor: '[]'}
 						}
 					}
@@ -8006,7 +8464,7 @@ var _user$project$Main$showUserAccount = function (model) {
 				{ctor: '[]'},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text(_p2._0._0),
+					_0: _elm_lang$html$Html$text(_p4._0._0),
 					_1: {
 						ctor: '::',
 						_0: _elm_lang$html$Html$text(' and we are still fetching your balance'),
@@ -8026,16 +8484,22 @@ var _user$project$Main$showUserAccount = function (model) {
 	}
 };
 var _user$project$Main$initialModel = function (flags) {
-	return {userAccount: flags.userAccount, contractAddress: flags.contractAddress, userBalance: _elm_lang$core$Maybe$Nothing};
+	return {userAccount: flags.userAccount, contractAddress: flags.contractAddress, userBalance: _elm_lang$core$Maybe$Nothing, userCoins: _elm_lang$core$Maybe$Nothing};
 };
 var _user$project$Main$initialCommands = function (model) {
-	var _p3 = model.userAccount;
-	if (_p3.ctor === 'Just') {
+	var _p5 = {ctor: '_Tuple2', _0: model.userAccount, _1: model.contractAddress};
+	if (((_p5.ctor === '_Tuple2') && (_p5._0.ctor === 'Just')) && (_p5._1.ctor === 'Just')) {
+		var _p6 = _p5._0._0;
 		return _elm_lang$core$Platform_Cmd$batch(
 			{
 				ctor: '::',
-				_0: _user$project$Coin$getUserBalance(_p3._0),
-				_1: {ctor: '[]'}
+				_0: _user$project$Coin$getUserBalance(_p6),
+				_1: {
+					ctor: '::',
+					_0: _user$project$Coin$getUserCoins(
+						{contractAddress: _p5._1._0, userAccount: _p6}),
+					_1: {ctor: '[]'}
+				}
 			});
 	} else {
 		return _elm_lang$core$Platform_Cmd$none;
@@ -8050,16 +8514,73 @@ var _user$project$Main$Flag = F2(
 	function (a, b) {
 		return {userAccount: a, contractAddress: b};
 	});
-var _user$project$Main$Model = F3(
-	function (a, b, c) {
-		return {userAccount: a, contractAddress: b, userBalance: c};
+var _user$project$Main$Model = F4(
+	function (a, b, c, d) {
+		return {userAccount: a, contractAddress: b, userBalance: c, userCoins: d};
+	});
+var _user$project$Main$Tick = function (a) {
+	return {ctor: 'Tick', _0: a};
+};
+var _user$project$Main$SetUserCoins = function (a) {
+	return {ctor: 'SetUserCoins', _0: a};
+};
+var _user$project$Main$TriggerUpdate = function (a) {
+	return {ctor: 'TriggerUpdate', _0: a};
+};
+var _user$project$Main$update = F2(
+	function (msg, model) {
+		update:
+		while (true) {
+			var _p7 = msg;
+			switch (_p7.ctor) {
+				case 'SetUserBalance':
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								userBalance: _elm_lang$core$Maybe$Just(_p7._0)
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				case 'NoOp':
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				case 'PurchaseCoins':
+					return {
+						ctor: '_Tuple2',
+						_0: model,
+						_1: _user$project$Coin$purchaseCoins(_p7._0)
+					};
+				case 'TriggerUpdate':
+					return {
+						ctor: '_Tuple2',
+						_0: model,
+						_1: _user$project$Main$updateCommands(model)
+					};
+				case 'SetUserCoins':
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{userCoins: _p7._0}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				default:
+					var _v6 = _user$project$Main$TriggerUpdate(
+						{ctor: '_Tuple0'}),
+						_v7 = model;
+					msg = _v6;
+					model = _v7;
+					continue update;
+			}
+		}
 	});
 var _user$project$Main$PurchaseCoins = function (a) {
 	return {ctor: 'PurchaseCoins', _0: a};
 };
 var _user$project$Main$showPurchaseWidget = function (model) {
-	var _p4 = {ctor: '_Tuple2', _0: model.userAccount, _1: model.contractAddress};
-	if (((_p4.ctor === '_Tuple2') && (_p4._0.ctor === 'Just')) && (_p4._1.ctor === 'Just')) {
+	var _p8 = {ctor: '_Tuple2', _0: model.userAccount, _1: model.contractAddress};
+	if (((_p8.ctor === '_Tuple2') && (_p8._0.ctor === 'Just')) && (_p8._1.ctor === 'Just')) {
 		return A2(
 			_elm_lang$html$Html$div,
 			{ctor: '[]'},
@@ -8071,7 +8592,7 @@ var _user$project$Main$showPurchaseWidget = function (model) {
 						ctor: '::',
 						_0: _elm_lang$html$Html_Events$onClick(
 							_user$project$Main$PurchaseCoins(
-								{contractAddress: _p4._1._0, userAccount: _p4._0._0})),
+								{contractAddress: _p8._1._0, userAccount: _p8._0._0})),
 						_1: {ctor: '[]'}
 					},
 					{
@@ -8111,7 +8632,11 @@ var _user$project$Main$view = function (model) {
 					_1: {
 						ctor: '::',
 						_0: _user$project$Main$showPurchaseWidget(model),
-						_1: {ctor: '[]'}
+						_1: {
+							ctor: '::',
+							_0: _user$project$Main$showUserCoins(model),
+							_1: {ctor: '[]'}
+						}
 					}
 				}
 			}
@@ -8125,7 +8650,19 @@ var _user$project$Main$subscriptions = function (model) {
 		{
 			ctor: '::',
 			_0: _user$project$Coin$setUserBalance(_user$project$Main$SetUserBalance),
-			_1: {ctor: '[]'}
+			_1: {
+				ctor: '::',
+				_0: _user$project$Coin$setUserCoins(_user$project$Main$SetUserCoins),
+				_1: {
+					ctor: '::',
+					_0: _user$project$Coin$triggerUpdate(_user$project$Main$TriggerUpdate),
+					_1: {
+						ctor: '::',
+						_0: A2(_elm_lang$core$Time$every, 1 * _elm_lang$core$Time$second, _user$project$Main$Tick),
+						_1: {ctor: '[]'}
+					}
+				}
+			}
 		});
 };
 var _user$project$Main$main = _elm_lang$html$Html$programWithFlags(
@@ -8180,6 +8717,10 @@ if (typeof _user$project$Main$main !== 'undefined') {
 Elm['PurchaseInfo'] = Elm['PurchaseInfo'] || {};
 if (typeof _user$project$PurchaseInfo$main !== 'undefined') {
     _user$project$PurchaseInfo$main(Elm['PurchaseInfo'], 'PurchaseInfo', undefined);
+}
+Elm['UserCoinInfo'] = Elm['UserCoinInfo'] || {};
+if (typeof _user$project$UserCoinInfo$main !== 'undefined') {
+    _user$project$UserCoinInfo$main(Elm['UserCoinInfo'], 'UserCoinInfo', undefined);
 }
 
 if (typeof define === "function" && define['amd'])

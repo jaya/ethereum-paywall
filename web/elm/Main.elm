@@ -4,6 +4,9 @@ import Html exposing (..)
 import Html.Events exposing (..)
 import Coin exposing (..)
 import PurchaseInfo exposing (PurchaseInfo)
+import UserCoinInfo exposing (UserCoinInfo)
+import Debug exposing (log)
+import Time exposing (Time, second)
 
 
 type alias Flag =
@@ -14,6 +17,7 @@ type alias Model =
     { userAccount : Maybe String
     , contractAddress : Maybe String
     , userBalance : Maybe Float
+    , userCoins : Maybe Float
     }
 
 
@@ -21,6 +25,9 @@ type Msg
     = NoOp
     | SetUserBalance Float
     | PurchaseCoins PurchaseInfo
+    | TriggerUpdate ()
+    | SetUserCoins (Maybe Float)
+    | Tick Time
 
 
 main =
@@ -45,11 +52,17 @@ init flags =
 
 
 initialCommands model =
-    case model.userAccount of
-        Just userAccount ->
-            Cmd.batch [ getUserBalance userAccount ]
+    case ( model.userAccount, model.contractAddress ) of
+        ( Just userAccount, Just contractAddress ) ->
+            Cmd.batch
+                [ getUserBalance userAccount
+                , getUserCoins
+                    { contractAddress = contractAddress
+                    , userAccount = userAccount
+                    }
+                ]
 
-        Nothing ->
+        _ ->
             Cmd.none
 
 
@@ -57,6 +70,7 @@ initialModel flags =
     { userAccount = flags.userAccount
     , contractAddress = flags.contractAddress
     , userBalance = Nothing
+    , userCoins = Nothing
     }
 
 
@@ -66,6 +80,7 @@ view model =
         , showUserAccount model
         , showContractAddress model
         , showPurchaseWidget model
+        , showUserCoins model
         ]
 
 
@@ -116,6 +131,15 @@ showContractAddress model =
             div [] [ text "No contract address provided" ]
 
 
+showUserCoins model =
+    case model.userCoins of
+        Just userCoins ->
+            div [] [ text "You have ", text (toString userCoins), text " coins" ]
+
+        Nothing ->
+            div [] [ text "We are fetching your amount of coins" ]
+
+
 update msg model =
     case msg of
         SetUserBalance balance ->
@@ -127,8 +151,35 @@ update msg model =
         PurchaseCoins account ->
             ( model, purchaseCoins account )
 
+        TriggerUpdate () ->
+            ( model, updateCommands model )
+
+        SetUserCoins amount ->
+            ( { model | userCoins = amount }, Cmd.none )
+
+        Tick _ ->
+            update (TriggerUpdate ()) model
+
+
+updateCommands model =
+    case ( model.contractAddress, model.userAccount ) of
+        ( Just contractAddress, Just userAccount ) ->
+            Cmd.batch
+                [ getUserBalance userAccount
+                , getUserCoins
+                    { userAccount = userAccount
+                    , contractAddress = contractAddress
+                    }
+                ]
+
+        _ ->
+            Cmd.none
+
 
 subscriptions model =
     Sub.batch
         [ setUserBalance SetUserBalance
+        , setUserCoins SetUserCoins
+        , triggerUpdate TriggerUpdate
+        , Time.every (1 * second) Tick
         ]

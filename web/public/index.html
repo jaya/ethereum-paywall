@@ -52,6 +52,15 @@ $.getJSON('contract_interface.json', function (contractInterface) {
 		});
 	})
 
+	app.ports.getUserCoins.subscribe(function (args) {
+		var coin = Coin.at(args.contractAddress);
+		coin.balanceOf(args.userAccount, function(err, res) {
+			app.ports.setUserCoins.send(
+				parseFloat(web3.fromWei(res, 'ether'))
+				);
+		});
+	})
+
 });
 });
 
