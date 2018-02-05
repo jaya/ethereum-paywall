@@ -5,21 +5,34 @@
 </head>
 <body>
 <div id="main"></div>
+<script src="jquery.js"></script>
 <script src="app.js"></script>
 <script type="text/javascript">
 
-var userAccount = web3.eth.accounts[0];
+var d;
 
-if (userAccount === undefined) {
-	userAccount = null;
-}
+$.getJSON('contract_address.json', function (contractAddress) {
+$.getJSON('contract_interface.json', function (contractInterface) {
 
-var app = Elm.Main.embed(
-	document.getElementById('main'),
-	{
-		userAccount: userAccount
+	var userAccount = web3.eth.accounts[0];
+	var Coin = web3.eth.contract(
+		contractInterface
+		);
+
+	if (userAccount === undefined) {
+		userAccount = null;
 	}
-);
+
+	var app = Elm.Main.embed(
+		document.getElementById('main'),
+		{
+			userAccount: userAccount,
+			contractAddress: contractAddress
+		}
+	);
+
+});
+});
 
 </script>
 </body>
